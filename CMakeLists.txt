@@ -62,6 +62,7 @@ cs_add_library(mpc_solver
   model/quadrotor_mpc_codegen/acado_solver.c
   model/quadrotor_mpc_codegen/acado_auxiliary_functions.c)
 
+  
 target_include_directories(mpc_solver PUBLIC
   model/quadrotor_mpc_codegen/
   externals/qpoases
@@ -90,6 +91,49 @@ target_link_libraries(mpc_controller_node
   mpc_controller
   mpc_wrapper
   mpc_solver)
+
+cs_add_library(utrilla_solver
+  externals/qpoases/SRC/Bounds.cpp
+  externals/qpoases/SRC/Constraints.cpp
+  externals/qpoases/SRC/CyclingManager.cpp
+  externals/qpoases/SRC/Indexlist.cpp
+  externals/qpoases/SRC/MessageHandling.cpp
+  externals/qpoases/SRC/QProblem.cpp
+  externals/qpoases/SRC/QProblemB.cpp
+  externals/qpoases/SRC/SubjectTo.cpp
+  externals/qpoases/SRC/Utils.cpp
+  externals/qpoases/SRC/EXTRAS/SolutionAnalysis.cpp
+  model/prueba_kin_export/acado_qpoases_interface.cpp
+  model/prueba_kin_export/acado_integrator.c
+  model/prueba_kin_export/acado_solver.c
+  model/prueba_kin_export/acado_auxiliary_functions.c)
+
+target_include_directories(utrilla_solver PUBLIC
+  model/prueba_kin_export/
+  externals/qpoases
+  externals/qpoases/INCLUDE
+  externals/qpoases/SRC)
+
+cs_add_library(utrilla_wrapper
+  src/utrilla_wrapper.cpp)
+
+target_link_libraries(utrilla_wrapper
+  utrilla_solver)
+
+cs_add_executable(utrilla_node
+  test/utrilla_node.cpp)
+target_link_libraries(utrilla_node
+  utrilla_wrapper
+  utrilla_solver)
+
+
+# make an executable
+cs_install()
+cs_export()
+  
+
+
+
 
 if(catkin_LIBRARIES MATCHES "autopilot")
 

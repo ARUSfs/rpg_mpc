@@ -51,3 +51,8 @@ INCLUDE_DIRECTORIES( . ${ACADO_INCLUDE_DIRS} )
 ADD_EXECUTABLE(        quadrotor_model_codegen quadrotor_model_thrustrates.cpp )
 TARGET_LINK_LIBRARIES( quadrotor_model_codegen ${ACADO_SHARED_LIBRARIES} )
 SET_TARGET_PROPERTIES( quadrotor_model_codegen PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )
+
+
+ADD_EXECUTABLE(        prueba_kin_codegen prueba_kin.cpp )
+TARGET_LINK_LIBRARIES( prueba_kin_codegen ${ACADO_SHARED_LIBRARIES} )
+SET_TARGET_PROPERTIES( prueba_kin_codegen PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} )

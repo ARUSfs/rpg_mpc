@@ -1,0 +1,4 @@
+/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/model/CMakeFiles/rebuild_cache.dir
+/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/model/CMakeFiles/edit_cache.dir
+/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/model/CMakeFiles/prueba_kin_codegen.dir
+/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/model/CMakeFiles/quadrotor_model_codegen.dir

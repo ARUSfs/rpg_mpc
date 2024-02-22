@@ -1,0 +1,1 @@
+/usr/bin/c++   -std=c++0x  -rdynamic CMakeFiles/prueba_kin_codegen.dir/prueba_kin.cpp.o  -o prueba_kin_codegen  -Wl,-rpath,/home/alvaro/workspaces/ACADOtoolkit/build/lib /home/alvaro/workspaces/ACADOtoolkit/build/lib/libacado_toolkit_s.so /home/alvaro/workspaces/ACADOtoolkit/build/lib/libacado_casadi.a /home/alvaro/workspaces/ACADOtoolkit/build/lib/libacado_csparse.a 

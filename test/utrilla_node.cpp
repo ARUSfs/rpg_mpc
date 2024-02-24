@@ -33,7 +33,7 @@ using namespace std;
 
 #define N           ACADO_N   /* Number of intervals in the horizon. */
 
-#define NUM_STEPS   800       /* Number of real-time iterations. */
+#define NUM_STEPS   1       /* Number of real-time iterations. */
 #define VERBOSE     0         /* Show iterations: 1, silent: 0.  */
 
 /* Global variables used by the solver. */
@@ -50,6 +50,16 @@ using namespace std;
 //     pub.publish(s);
 // }
 
+double prediccion[NX*(N+1)];
+for (i = 0; i < NX*(N+1); ++i) prediccion[i] = 0.01;
+
+double u_prediccion[NU*N];
+for (i = 0; i < NU*N; ++i) u_prediccion[i] = 0.0;
+
+double cmd[2] = {0, 0};
+
+bool acado_inicializado = false;
+bool acado_preparado = false;
 
 
 double interpolate( vector<double> &xData, vector<double> &yData, double x, bool extrapolate )
@@ -109,18 +119,13 @@ bool readDataFromFile( const char* fileName, vector< double > & data )
 
 
 
-
-
-
-
 /* A template for testing of the solver. */
 void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& pub){
 
 	cout << msg->data[0] << endl;
 
-	/* Some temporary variables. */
-	int    i, iter;
-	utrilla_mpc::acado_timer t;
+	/* Temporary variable. */
+	int    i;
 
 	// Reset all solver memory
 	memset(&utrilla_mpc::acadoWorkspace, 0, sizeof( utrilla_mpc::acadoWorkspace ));
@@ -128,85 +133,58 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 
 	vector< double > k;
 	vector< double > s;
-	if (readDataFromFile("/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/test/k_smooth.txt", k) == false)
+	if (readDataFromFile("k_smooth.txt", k) == false)
 	{
 		cout << "Cannot read measurements 1" << endl;
 		// return EXIT_FAILURE;
 	}
-	if (readDataFromFile("/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/test/s.txt", s) == false)
+	if (readDataFromFile("s.txt", s) == false)
 	{
 		cout << "Cannot read measurements 2" << endl;
 		// return EXIT_FAILURE;
 	}
 
 	/* Initialize the solver. */
-	utrilla_mpc::acado_initializeSolver();
+	if( ~acado_inicializado ) {
+		utrilla_mpc::acado_initializeSolver();
+		acado_inicializado = true;
+	}
 
 	/* Initialize the states and controls. */
-	for (i = 0; i < NX * (N + 1); ++i)  utrilla_mpc::acadoVariables.x[ i ] = 0.01;
-	for (i = 0; i < NU * N; ++i)  utrilla_mpc::acadoVariables.u[ i ] = 0.0;
+	for (i = 0; i < NX * (N + 1); ++i)  utrilla_mpc::acadoVariables.x[ i ] = prediccion[ i ];
+	for (i = 0; i < NU * N; ++i)  utrilla_mpc::acadoVariables.u[ i ] = u_prediccion[ i ];
 
 	/* Initialize the measurements/reference. */
 	for (i = 0; i < NY * N; ++i)  utrilla_mpc::acadoVariables.y[ i ] = 0.0;
 	for (i = 0; i < NYN; ++i)  utrilla_mpc::acadoVariables.yN[ i ] = 0.0;
 	
-	/* MPC: initialize the current state feedback. */
-#if ACADO_INITIAL_STATE_FIXED
-	for (i = 0; i < NX; ++i) utrilla_mpc::acadoVariables.x0[ i ] = 0.0;
-#endif
-	utrilla_mpc::acadoVariables.x0[0]=10;
-	utrilla_mpc::acadoVariables.x0[3]=5;
-	utrilla_mpc::acadoVariables.x0[6]=0.1;
-	// if( VERBOSE ) acado_printHeader();
-	
-	for (i=0; i<51;++i) utrilla_mpc::acadoVariables.od[i]= interpolate(s,k,utrilla_mpc::acadoVariables.x[i*NX],true);
+	for (i=0; i < N + 1;++i) utrilla_mpc::acadoVariables.od[i]= interpolate(s,k,prediccion[i*NX],true);
 
 	/* Prepare first step */
+	if(~acado_preparado) {
+		utrilla_mpc::acado_preparationStep();
+		acado_preparado = true;
+	}
+	/* Perform the feedback step. */
+	utrilla_mpc::acado_feedbackStep( );
+
+	/* Apply the new control immediately to the process, first NU components. */
+
+	cmd[0] = utrilla_mpc::acadoVariables.u[0];
+	cmd[1] = utrilla_mpc::acadoVariables.u[1];
+	
+	if( VERBOSE ) printf("\tReal-Time Iteration %d:  KKT Tolerance = %.3e\n\n", iter, utrilla_mpc::acado_getKKT() );
+
+	/* Optional: shift the initialization (look at acado_common.h). */
+	utrilla_mpc::acado_shiftStates(2, 0, 0); 
+	utrilla_mpc::acado_shiftControls( 0 ); 
+
+	for (i = 0; i < NX * (N + 1); ++i) prediccion[i] = utrilla_mpc::acadoVariables.x[i];
+	for (i = 0; i < NU * N; ++i) u_prediccion[i] = utrilla_mpc::acadoVariables.u[i];
+
+	/* Prepare for the next step. */
 	utrilla_mpc::acado_preparationStep();
 
-	/* Get the time before start of the loop. */
-	utrilla_mpc::acado_tic( &t );
-
-	double sim_states[NUM_STEPS*NX];
-
-	/* The "real-time iterations" loop. */
-	for(iter = 0; iter < NUM_STEPS; ++iter)
-	{		
-		/* Perform the feedback step. */
-		utrilla_mpc::acado_feedbackStep( );
-		
-		/* Apply the new control immediately to the process, first NU components. */
-
-		if( VERBOSE ) printf("\tReal-Time Iteration %d:  KKT Tolerance = %.3e\n\n", iter, utrilla_mpc::acado_getKKT() );
-
-		/* Optional: shift the initialization (look at acado_common.h). */
-        utrilla_mpc::acado_shiftStates(2, 0, 0); 
-		utrilla_mpc::acado_shiftControls( 0 ); 
-
-		/* Prepare for the next step. */
-		utrilla_mpc::acado_preparationStep();
-
-		for (i = 0; i < NX; ++i) utrilla_mpc::acadoVariables.x0[ i ] = utrilla_mpc::acadoVariables.x[ i ];
-		for (i=0; i<51;++i) utrilla_mpc::acadoVariables.od[i]= interpolate(s,k,utrilla_mpc::acadoVariables.x[i*NX],true);
-		//cout << acadoVariables.od[0] << " " << acadoVariables.x[NX] << "\n";
-		for (i = 0; i < NX; ++i) sim_states[i+iter*NX]= utrilla_mpc::acadoVariables.x0[ i ];
-	}
-	/* Read the elapsed time. */
-	utrilla_mpc::real_t te = utrilla_mpc::acado_toc( &t );
-
-	if( VERBOSE ) printf("\n\nEnd of the RTI loop. \n\n\n");
-
-	/* Eye-candy. */
-
-	if( !VERBOSE )
-	printf("\n\n Average time of one real-time iteration:   %.3g microseconds\n\n", 1e6 * te / NUM_STEPS);
-
-	//acado_printDifferentialVariables();
-	//acado_printControlVariables();
-
-	for(i=0; i<NUM_STEPS*NX; ++i) cout << sim_states[i] << " ";
-	cout << "\n";
-    // return 0;
 }
 
 int main(int argc, char **argv){

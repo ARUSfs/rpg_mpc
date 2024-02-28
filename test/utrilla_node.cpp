@@ -170,8 +170,8 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 
 	/* Apply the new control immediately to the process, first NU components. */
 
-	cmd[0] = utrilla_mpc::acadoVariables.u[0];
-	cmd[1] = utrilla_mpc::acadoVariables.u[1];
+	cmd[0] = utrilla_mpc::acadoVariables.x[6];
+	cmd[1] = utrilla_mpc::acadoVariables.x[7];
 	
 	if( VERBOSE ) printf("\tReal-Time Iteration %d:  KKT Tolerance = %.3e\n\n", iter, utrilla_mpc::acado_getKKT() );
 

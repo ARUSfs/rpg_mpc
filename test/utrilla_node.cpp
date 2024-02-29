@@ -47,6 +47,9 @@ double u_prediccion[NU*N];
 bool acado_inicializado = false;
 bool acado_preparado = false;
 
+vector< double > k;
+vector< double > s;
+
 
 double interpolate( vector<double> &xData, vector<double> &yData, double x, bool extrapolate )
 {
@@ -124,20 +127,16 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 
 	//Initialize x0
 	for (i = 0; i < NX; ++i) acadoVariables.x0[ i ] = msg->data[i];
+	// if (acadoVariables.x0[3]<0.5){
+	// 	acadoVariables.x0[3]=3;
+	// }
+	// if (acadoVariables.x0[6]==0){
+	// 	acadoVariables.x0[6]=0.1;
+	// }
+	// cout << acadoVariables.x0[6] << endl;
 	
 
-	vector< double > k;
-	vector< double > s;
-	if (readDataFromFile("/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/test/k_smooth.txt", k) == false)
-	{
-		cout << "Cannot read measurements 1" << endl;
-		// return EXIT_FAILURE;
-	}
-	if (readDataFromFile("/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/test/s.txt", s) == false)
-	{
-		cout << "Cannot read measurements 2" << endl;
-		// return EXIT_FAILURE;
-	}
+	
 
 	/* Initialize the solver. */
 	if( ~acado_inicializado ) {
@@ -167,9 +166,9 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 
 	/* Apply the new control immediately to the process, first NU components. */
 	common_msgs::Controls cmd;
-	cmd.steering = acadoVariables.x[6];
-	cmd.accelerator = acadoVariables.x[7];
-	printf("cmd: %f, delta: %f\n", cmd.steering, cmd.accelerator );
+	cmd.accelerator = acadoVariables.x[6];
+	cmd.steering = (acadoVariables.x[7]*180)/3.14159265358979323846;
+	printf("cmd: %f, delta: %f\n", cmd.accelerator, cmd.steering );
 	pub.publish(cmd);
 	
 	if( VERBOSE ) printf("\tReal-Time Iteration %d:  KKT Tolerance = %.3e\n\n", 1, acado_getKKT() );
@@ -190,11 +189,22 @@ int main(int argc, char **argv){
 	for (int i = 0; i < NX*(N+1); ++i) prediccion[i] = 0.01;
 	for (int i = 0; i < NU*N; ++i) u_prediccion[i] = 0.0;
 
+	if (readDataFromFile("/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/test/k_smooth.txt", k) == false)
+	{
+		cout << "Cannot read measurements 1" << endl;
+		// return EXIT_FAILURE;
+	}
+	if (readDataFromFile("/home/alvaro/workspaces/rpg_mpc_ws/src/rpg_mpc/test/s.txt", s) == false)
+	{
+		cout << "Cannot read measurements 2" << endl;
+		// return EXIT_FAILURE;
+	}
+
     ros::init(argc,argv,"utrilla_mpc");
     ros::NodeHandle n;
 
     
-    ros::Publisher pub = n.advertise<common_msgs::Controls>("controls", 1000);
+    ros::Publisher pub = n.advertise<common_msgs::Controls>("controls_mpc", 1000);
     ros::Subscriber sub = n.subscribe<std_msgs::Float32MultiArray>("/curvilineas/x", 1000,
          boost::bind(callback, _1, boost::ref(pub)));
    

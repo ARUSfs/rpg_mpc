@@ -9,10 +9,11 @@ import rospy
 from fssim_common.msg import State, Cmd
 from std_msgs.msg import Float32MultiArray
 import numpy as np
-
+import time
+t0=0
 
 def callback(msg:State):
-    global k,s,x,y,par,delta
+    global k,s,x,y,par,delta,t0
     np.array(k)
     dx=np.array(x)-msg.x
     dy=np.array(y)-msg.y
@@ -20,21 +21,23 @@ def callback(msg:State):
     i=np.argmin(dist)
     d_min=np.min(dist)
     s[i]
-
-    theta = msg.yaw - np.arctan2(y[(i+5)%len(x)]-y[i],x[(i+5)%len(x)]-x[i])
-    # rospy.loginfo([s[i],d_min,theta])
+    corrected_yaw = (msg.yaw+np.pi)%(2*np.pi) - np.pi
+    theta = corrected_yaw- np.arctan2(y[(i+5)%len(x)]-y[i],x[(i+5)%len(x)]-x[i])
     
-    k_msg = Float32MultiArray()
-    k_msg.data=k
-    k_pub.publish(k_msg)
+   #  k_msg = Float32MultiArray()
+   #  k_msg.data=k
+   #  k_pub.publish(k_msg)
 
-    s_msg = Float32MultiArray()
-    s_msg.data=s
-    s_pub.publish(s_msg)
+   #  s_msg = Float32MultiArray()
+   #  s_msg.data=s
+   #  s_pub.publish(s_msg)
 
     x_msg = Float32MultiArray()
     x_msg.data = [s[i],d_min,theta,msg.vx,msg.vy,msg.r,par,delta]
-    x_pub.publish(x_msg)
+    if time.time()-t0>=0.01:
+      x_pub.publish(x_msg)
+      rospy.loginfo(x_msg)
+      t0=time.time()
 
 def callback2(msg:Cmd):
     global par,delta

@@ -12,12 +12,12 @@
   <buildtool_depend>catkin_simple</buildtool_depend>
 
 
-  <depend>autopilot</depend>
   <depend>geometry_msgs</depend>
   <depend>quadrotor_common</depend>
   <depend>roscpp</depend>
   <depend>rospy</depend>
   <depend>std_msgs</depend>
+  <depend>common_msgs</depend>
   <depend>trajectory_msgs</depend>
 
   <export>

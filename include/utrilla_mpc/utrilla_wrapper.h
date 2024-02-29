@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Eigen/Eigen>
+//#include <Eigen/Eigen>
 #include <ros/ros.h>
 
 namespace utrilla_mpc {
@@ -28,10 +28,7 @@ class UtrillaWrapper
 
 
   UtrillaWrapper();
-
-  float get4=4;
   
-
  private:
   
 };

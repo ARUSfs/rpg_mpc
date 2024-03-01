@@ -120,6 +120,7 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 	
 	
 	acado_timer t;
+	acado_tic( &t );
 
 	// Reset all solver memory
 	memset(&acadoWorkspace, 0, sizeof( acadoWorkspace ));
@@ -139,7 +140,7 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 	
 
 	/* Initialize the solver. */
-	if( ~acado_inicializado ) {
+	if( !acado_inicializado ) {
 		acado_initializeSolver();
 		acado_inicializado = true;
 	}
@@ -156,7 +157,7 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 	for (i=0; i<51;++i) acadoVariables.od[i]= interpolate(s,k,acadoVariables.x[i*NX],true);
 
 	/* Prepare first step */
-	if(~acado_preparado) {
+	if(!acado_preparado) {
 		acado_preparationStep();
 		acado_preparado = true;
 	}
@@ -170,8 +171,10 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 	cmd.steering = (acadoVariables.x[7]*180)/3.14159265358979323846;
 	printf("cmd: %f, delta: %f\n", cmd.accelerator, cmd.steering );
 	pub.publish(cmd);
+
+	real_t te = acado_toc( &t );
+	printf("Elapsed time:   %f\n\n", te);
 	
-	if( VERBOSE ) printf("\tReal-Time Iteration %d:  KKT Tolerance = %.3e\n\n", 1, acado_getKKT() );
 
 	/* Optional: shift the initialization (look at acado_common.h). */
 	acado_shiftStates(2, 0, 0); 

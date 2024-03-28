@@ -210,10 +210,10 @@ void callback(const std_msgs::Float32MultiArray::ConstPtr& msg, ros::Publisher& 
 	/* Perform the feedback step. */
 	acado_feedbackStep( );
 
-	for(i=1; i<1; ++i){
-	acado_preparationStep();
-	acado_feedbackStep();
-	}
+	// for(i=1; i<2; ++i){
+	// acado_preparationStep();
+	// acado_feedbackStep();
+	// }
 	if( VERBOSE ) printf("\tKKT Tolerance = %.3e\n\n", acado_getKKT() );
 
 	// acado_printDifferentialVariables();
@@ -277,12 +277,12 @@ int main(int argc, char **argv){
 
 	// i_mu=0;
 
-	if (readDataFromFile("/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/test/k_new.txt", k) == false)
+	if (readDataFromFile("/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/test/k_FSG.txt", k) == false)
 	{
 		cout << "Cannot read measurements 1" << endl;
 		// return EXIT_FAILURE;
 	}
-	if (readDataFromFile("/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/test/s_new.txt", s) == false)
+	if (readDataFromFile("/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/test/s.txt", s) == false)
 	{
 		cout << "Cannot read measurements 2" << endl;
 		// return EXIT_FAILURE;
@@ -290,7 +290,6 @@ int main(int argc, char **argv){
 
     ros::init(argc,argv,"utrilla_mpc");
     ros::NodeHandle n;
-
     
     ros::Publisher pub = n.advertise<common_msgs::Controls>("controls_mpc", 1);
 	ros::Publisher pub_pred = n.advertise<std_msgs::Float32MultiArray>("pred_ruta",1);

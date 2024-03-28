@@ -7,11 +7,11 @@ C_FLAGS = -fPIC
 
 C_DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"rpg_mpc\" -Dutrilla_solver_EXPORTS
 
-C_INCLUDES = -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/home/juv/workspaces/ros_ws/devel/.private/common_msgs/include -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/model/prueba_kin_export -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases/INCLUDE -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases/SRC 
+C_INCLUDES = -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/include -I/home/juv/workspaces/mpc_ws/devel/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/model/prueba_kin_export -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases/INCLUDE -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases/SRC 
 
 CXX_FLAGS =  -std=c++0x -Wall -Wextra -fPIC  
 
 CXX_DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"rpg_mpc\" -Dutrilla_solver_EXPORTS
 
-CXX_INCLUDES = -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/home/juv/workspaces/ros_ws/devel/.private/common_msgs/include -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/model/prueba_kin_export -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases/INCLUDE -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases/SRC 
+CXX_INCLUDES = -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/include -I/home/juv/workspaces/mpc_ws/devel/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/model/prueba_kin_export -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases/INCLUDE -I/home/juv/workspaces/mpc_ws/src/DRIVERLESS/src/control/rpg_mpc/externals/qpoases/SRC 
 
